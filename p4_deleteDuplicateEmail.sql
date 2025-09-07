@@ -19,8 +19,21 @@ After running your script, the answer shown is the Person table. The driver will
 
 The result format is in the following example.
 */
+
+-- self join solution
 delete p1
 from Person p1
 join Person p2
 on p1.email = p2.email
 where p1.id > p2.id
+
+-- with temp 
+with temp as (
+    select id, 
+           ROW_NUMBER() OVER (PARTITION BY email ORDER BY id) AS row_num
+    from Person
+)
+delete from Person
+where id in (
+    select id from temp where row_num > 1
+);
